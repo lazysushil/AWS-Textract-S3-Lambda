@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Work Items Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #d4edda 0%, #a8d5ba 100%);
+            --bg-light: #f8f9fc;
+            --card: #ffffff;
+            --primary: #48bb78;
+            --primary-dark: #38a169;
+            --text: #1a202c;
+            --text-light: #4a5568;
+            --muted: #718096;
+            --border: #e2e8f0;
+            --success: #48bb78;
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-light);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--bg-gradient);
+            color: #2d3748;
+            padding: 32px 48px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-text p {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        .btn {
+            background: #4a5568;
+            color: white;
+            border: 1px solid #2d3748;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #2d3748;
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 6px 16px rgba(72, 187, 120, 0.4);
+        }
+
+        main {
+            padding: 40px 48px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(to right, #fafbfc, #ffffff);
+        }
+
+        .card-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #fafbfc;
+        }
+
+        th {
+            padding: 16px 32px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 20px 32px;
+            font-size: 14px;
+            color: var(--text-light);
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr {
+            transition: all 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f7fafc;
+            transform: scale(1.01);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .status {
+            padding: 48px 32px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .status.loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        footer {
+            margin-top: 32px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--muted);
+            padding: 24px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            overflow: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card);
+            border-radius: 16px;
+            width: 95%;
+            max-width: 1400px;
+            max-height: 90vh;
+            display: flex;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-left {
+            flex: 1;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-right: 1px solid var(--border);
+            overflow: auto;
+        }
+
+        .modal-left img {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-right {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .close-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #dc2626;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+        }
+
+        @media (max-width: 1024px) {
+            .modal-content {
+                flex-direction: column;
+                max-height: 95vh;
+            }
+
+            .modal-left {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .modal-left img {
+                max-height: 40vh;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header, main {
+                padding: 24px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            th, td {
+                padding: 12px 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <div class="header-text">
+            <h1>📋 Work Items Dashboard</h1>
+            <p>Manage and track your work items efficiently</p>
+        </div>
+        <button class="btn" onclick="handleLogout()">
+            Log Out
+        </button>
+    </div>
+</header>
+
+<main>
+    <div class="stats-grid" id="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Items</div>
+            <div class="stat-value" id="total-items">-</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Available Work Items</h2>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Last Modified</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="s3-table-body">
+                <tr>
+                    <td colspan="3" class="status loading">
+                        <div class="spinner"></div>
+                        <div>Loading work items...</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+        Click "Open" to view and complete your work items
+    </footer>
+</main>
+
+<!-- Modal -->
+<div class="modal" id="itemModal">
+    <div class="modal-content">
+        <div class="modal-left">
+            <img id="modalImage" src="" alt="Work Item Image">
+        </div>
+        <div class="modal-right">
+            <div class="modal-header">
+                <h2>Work Item Details</h2>
+                <button class="close-btn" onclick="closeModal()">Close</button>
+            </div>
+            <div id="formFields"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // =================================================================
+    // CONFIGURATION - UPDATE THIS URL WITH YOUR API GATEWAY ENDPOINT
+    // =================================================================
+
+    // ⚠️ REPLACE THIS WITH YOUR ACTUAL API GATEWAY URL
+    const API_ENDPOINT = "https://i5ij8o5p1b.execute-api.us-east-1.amazonaws.com/dev/getUriData";
+
+    // =================================================================
+    // UTILITY FUNCTIONS
+    // =================================================================
+
+    /**
+     * Formats an ISO date string into a readable format
+     */
+    function formatDate(isoString) {
+        const date = new Date(isoString);
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    /**
+     * Updates the statistics card showing total number of items
+     */
+    function updateStats(data) {
+        const totalItems = data.length;
+        document.getElementById('total-items').textContent = totalItems;
+    }
+
+    // =================================================================
+    // MODAL FUNCTIONS
+    // =================================================================
+
+    /**
+     * Opens the modal window to display image and form fields
+     */
+    function openItemModal(imageUrl, jsonData) {
+        const modal = document.getElementById('itemModal');
+        const modalImage = document.getElementById('modalImage');
+        const formFields = document.getElementById('formFields');
+
+        // Set the image source to the S3 URL
+        modalImage.src = imageUrl;
+
+        // Clear any existing form fields
+        formFields.innerHTML = '';
+
+        // Generate form fields dynamically from JSON data
+        if (jsonData && typeof jsonData === 'object') {
+            for (const [key, value] of Object.entries(jsonData)) {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+
+                const label = document.createElement('label');
+                label.textContent = key;
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = value || '';
+                input.id = `field-${key}`;
+
+                formGroup.appendChild(label);
+                formGroup.appendChild(input);
+                formFields.appendChild(formGroup);
+            }
+        }
+
+        // Show the modal
+        modal.classList.add('active');
+    }
+
+    /**
+     * Closes the modal window
+     */
+    function closeModal() {
+        const modal = document.getElementById('itemModal');
+        modal.classList.remove('active');
+    }
+
+    /**
+     * Close modal when clicking on the dark overlay
+     */
+    document.getElementById('itemModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+    // =================================================================
+    // DATA FETCHING - THIS IS WHERE YOUR API CALL HAPPENS
+    // =================================================================
+
+    /**
+     * Fetch work items from your API Gateway endpoint
+     *
+     * Expected API Response Format:
+     * [
+     *   {
+     *     "key": "document001.jpg",
+     *     "lastModified": "2025-12-27T10:30:00Z",
+     *     "url": "https://s3-presigned-url...",
+     *     "metadata": {
+     *       "Field1": "Value1",
+     *       "Field2": "Value2"
+     *     }
+     *   }
+     * ]
+     */
+
+    // 🔥 MAIN API CALL - THIS IS WHERE YOU FETCH YOUR DATA
+    fetch(API_ENDPOINT)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const tbody = document.getElementById("s3-table-body");
+            tbody.innerHTML = "";
+
+            // Handle empty data
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="status">
+                            No work items available at the moment. Check back later!
+                        </td>
+                    </tr>
+                `;
+                updateStats([]);
+                return;
+            }
+
+            // Update statistics
+            updateStats(data);
+
+            // Create a table row for each work item
+            data.forEach((item, index) => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td class="file-name">${item.key}</td>
+                    <td>${formatDate(item.lastModified)}</td>
+                    <td>
+                        <button class="btn btn-primary" data-index="${index}">
+                            Open
+                        </button>
+                    </td>
+                `;
+
+                // Add click event to button
+                const button = row.querySelector('button');
+                button.addEventListener('click', function() {
+                    openItemModal(item.url, item.metadata);
+                });
+
+                tbody.appendChild(row);
+            });
+        })
+        .catch(error => {
+            // Handle errors
+            const tbody = document.getElementById("s3-table-body");
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="3" class="status">
+                        ⚠️ Unable to load work items. Please try again later.
+                        <br><small>Error: ${error.message}</small>
+                    </td>
+                </tr>
+            `;
+            console.error('Fetch error:', error);
+            updateStats([]);
+        });
+
+    // =================================================================
+    // LOGOUT FUNCTION
+    // =================================================================
+
+    /**
+     * Handles user logout by closing the browser tab
+     */
+    function handleLogout() {
+        window.close();
+    }
+</script>
+
+</body>
+</html>
