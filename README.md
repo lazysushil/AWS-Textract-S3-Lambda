@@ -1,16 +1,6 @@
 # AWS-Textract-S3-Lambda
 
 
-document-processor/
-├── frontend/
-│   └── index.html
-├── lambda/
-│   ├── textract-extractor.py
-│   └── api-handler.py
-├── docs/
-│   └── architecture.png
-└── README.md
-
 
 🚀 Built an Automated Document Processing System with AWS
 
@@ -40,15 +30,10 @@ AWS Lambda | Textract | S3 | API Gateway | Python | JavaScript
 💡 Key Learning:
 Serverless + event-driven = powerful automation without managing servers. Pay only for what you use, scale automatically.
 
-🔗 Full code & documentation on GitHub: [YOUR_REPO_LINK]
+🔗 Full code & documentation on GitHub: https://github.com/lazysushil/AWS-Textract-S3-Lambda
 
 What manual processes are you automating? Drop your thoughts below! 👇
 
 #AWS #ServerlessArchitecture #CloudComputing #Automation #Python #JavaScript #TechInnovation #CloudEngineering #AI
 
----
 
-📸 Swipe to see:
-→ Architecture diagram
-→ Live dashboard
-→ Extracted data in action
