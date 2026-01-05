@@ -5,7 +5,7 @@
 🚀 Built an Automated Document Processing System with AWS
 
 The Challenge:
-Manual data entry from driver's licenses = 5 minutes per document
+Manual data entry from physical documents = 5 minutes per document
 ❌ Slow, error-prone, expensive
 
 The Solution:
